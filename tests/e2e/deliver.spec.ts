@@ -48,6 +48,16 @@ test.describe('Cadastro de entregador', () => {
       await expect(deliverPage.cityUfInput).toHaveValue(deliverData.address.cityUf);
     });
 
+    test('deve exibir preview ao subir foto da CNH', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.uploadCnh(deliverData.cnhFile);
+
+      await deliverPage.expectCnhPreviewVisible();
+    });
+
     test('deve cadastrar um entregador com dados validos', async ({ page }) => {
       const homePage = new HomePage(page);
       const deliverPage = new DeliverPage(page);

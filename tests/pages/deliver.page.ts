@@ -23,6 +23,8 @@ export class DeliverPage {
   readonly addressDetailsInput: Locator;
   readonly districtInput: Locator;
   readonly cityUfInput: Locator;
+  readonly cnhFileInput: Locator;
+  readonly cnhPreviewImage: Locator;
   readonly cnhUploadText: Locator;
   readonly warningText: Locator;
   readonly submitButton: Locator;
@@ -48,6 +50,8 @@ export class DeliverPage {
     this.addressDetailsInput = page.locator('input[name="address-details"]');
     this.districtInput = page.locator('input[name="district"]');
     this.cityUfInput = page.locator('input[name="city-uf"]');
+    this.cnhFileInput = page.locator('input[type="file"]');
+    this.cnhPreviewImage = page.getByRole('img', { name: 'Deliver thumbnail' });
     this.cnhUploadText = page.getByText('Foto da sua CNH');
     this.warningText = page.getByText(/CNH é obrigatória somente para veículos motorizados/i);
     this.submitButton = page.getByRole('button', { name: 'Cadastre-se para fazer entregas' });
@@ -122,7 +126,11 @@ export class DeliverPage {
   }
 
   async uploadCnh(filePath: string): Promise<void> {
-    await this.page.locator('input[type="file"]').setInputFiles(path.resolve(filePath));
+    await this.cnhFileInput.setInputFiles(path.resolve(filePath));
+  }
+
+  async expectCnhPreviewVisible(): Promise<void> {
+    await expect(this.cnhPreviewImage).toBeVisible();
   }
 
   deliveryMethodOption(method: string): Locator {
