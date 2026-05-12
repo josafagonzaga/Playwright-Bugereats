@@ -4,3 +4,4 @@ test-results/
 .env
 .agents/
 .codex/
+tools/
