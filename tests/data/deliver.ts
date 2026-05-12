@@ -14,4 +14,5 @@ export const deliverData = {
   },
   deliveryMethod: 'Moto',
   cnhFile: 'tests/fixtures/cnh.svg',
+  replacementCnhFile: 'tests/fixtures/cnh-alt.svg',
 };

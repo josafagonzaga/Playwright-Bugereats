@@ -133,6 +133,10 @@ export class DeliverPage {
     await expect(this.cnhPreviewImage).toBeVisible();
   }
 
+  async expectCnhPreviewNaturalWidth(width: number): Promise<void> {
+    await expect(this.cnhPreviewImage).toHaveJSProperty('naturalWidth', width);
+  }
+
   deliveryMethodOption(method: string): Locator {
     return this.page.locator('li', { hasText: method });
   }

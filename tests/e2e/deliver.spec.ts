@@ -58,6 +58,21 @@ test.describe('Cadastro de entregador', () => {
       await deliverPage.expectCnhPreviewVisible();
     });
 
+    test('deve atualizar preview ao trocar foto da CNH', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.uploadCnh(deliverData.cnhFile);
+      await deliverPage.expectCnhPreviewVisible();
+      await deliverPage.expectCnhPreviewNaturalWidth(320);
+
+      await deliverPage.uploadCnh(deliverData.replacementCnhFile);
+
+      await deliverPage.expectCnhPreviewVisible();
+      await deliverPage.expectCnhPreviewNaturalWidth(480);
+    });
+
     test('deve cadastrar um entregador com dados validos', async ({ page }) => {
       const homePage = new HomePage(page);
       const deliverPage = new DeliverPage(page);
@@ -77,6 +92,21 @@ test.describe('Cadastro de entregador', () => {
       await deliverPage.closeSuccessModal();
       await expect(page).toHaveURL(/\/$/);
     });
+
+    test('deve cadastrar um entregador sem complemento', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await mockValidCep(page);
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.fillDriverData(deliverData.driver);
+      await deliverPage.fillAddress(deliverData.address);
+      await deliverPage.selectDeliveryMethod(deliverData.deliveryMethod);
+      await deliverPage.uploadCnh(deliverData.cnhFile);
+      await deliverPage.submit();
+
+      await deliverPage.expectSuccessModal();
+    });
   });
 
   test.describe('Validacoes', () => {
@@ -94,6 +124,71 @@ test.describe('Cadastro de entregador', () => {
       await deliverPage.expectAlert('É necessário informar o número do endereço');
       await deliverPage.expectAlert('Adicione uma foto da sua CNH');
       await deliverPage.expectAlert('Selecione o método de entrega');
+    });
+
+    test('deve validar nome obrigatorio isolado', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await mockValidCep(page);
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.fillRequiredValidData(deliverData);
+      await deliverPage.fullNameInput.clear();
+      await deliverPage.submit();
+
+      await deliverPage.expectAlert('É necessário informar o nome');
+    });
+
+    test('deve validar CPF obrigatorio isolado', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await mockValidCep(page);
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.fillRequiredValidData(deliverData);
+      await deliverPage.cpfInput.clear();
+      await deliverPage.submit();
+
+      await deliverPage.expectAlert('É necessário informar o CPF');
+    });
+
+    test('deve validar email obrigatorio isolado', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await mockValidCep(page);
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.fillRequiredValidData(deliverData);
+      await deliverPage.emailInput.clear();
+      await deliverPage.submit();
+
+      await deliverPage.expectAlert('É necessário informar o email');
+    });
+
+    test('deve validar CEP obrigatorio isolado ao enviar formulario', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await mockValidCep(page);
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.fillRequiredValidData(deliverData);
+      await deliverPage.postalCodeInput.clear();
+      await deliverPage.submit();
+
+      await deliverPage.expectAlert('É necessário informar o CEP');
+    });
+
+    test('deve validar numero do endereco obrigatorio isolado', async ({ page }) => {
+      const deliverPage = new DeliverPage(page);
+
+      await mockValidCep(page);
+      await deliverPage.goto();
+      await deliverPage.expectLoaded();
+      await deliverPage.fillRequiredValidData(deliverData);
+      await deliverPage.addressNumberInput.clear();
+      await deliverPage.submit();
+
+      await deliverPage.expectAlert('É necessário informar o número do endereço');
     });
 
     const invalidCpfs = [
@@ -221,5 +316,19 @@ test.describe('Cadastro de entregador', () => {
 
       await deliverPage.expectDeliveryMethodNotSelected('Moto');
     });
+
+    const deliveryMethods = ['Moto', 'Bike Elétrica', 'Van/Carro'];
+
+    for (const deliveryMethod of deliveryMethods) {
+      test(`deve selecionar o metodo de entrega ${deliveryMethod}`, async ({ page }) => {
+        const deliverPage = new DeliverPage(page);
+
+        await deliverPage.goto();
+        await deliverPage.expectLoaded();
+        await deliverPage.selectDeliveryMethod(deliveryMethod);
+
+        await deliverPage.expectDeliveryMethodSelected(deliveryMethod);
+      });
+    }
   });
 });
